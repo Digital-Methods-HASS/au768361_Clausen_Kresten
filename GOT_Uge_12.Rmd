@@ -1,0 +1,171 @@
+---
+title: "Uge_12"
+author: "Kresten"
+date: "2025-03-19"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+library(tidyverse)
+library(here)
+
+# For text mining:
+
+library(pdftools)
+library(tidytext)
+library(textdata) 
+library(ggwordcloud)                   
+```
+```{r}
+
+GOT_PDF <- pdf_text("data/got.pdf")
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+GOT_df <- data.frame(GOT_PDF) %>% 
+  mutate(text_full = str_split(GOT_PDF, pattern = '\n')) %>% 
+  unnest(text_full) %>% 
+  mutate(text_full = str_trim(text_full)) 
+GOT_df
+```
+```{r}
+GOT_tokens <- GOT_df %>% 
+  unnest_tokens(word, text_full)
+GOT_tokens
+```
+```{r}
+GOT_wc <- GOT_tokens %>% 
+  count(word) %>% 
+  arrange(-n)
+GOT_wc
+```
+```{r}
+view(stop_words)
+GOT_stop <- GOT_tokens %>% 
+  anti_join(stop_words) %>% 
+  select(-GOT_PDF)
+```
+```{r}
+GOT_swc <- GOT_stop %>% 
+  count(word) %>% 
+  arrange(-n)
+GOT_swc
+```
+```{r}
+GOT_no_numeric <- GOT_stop %>% 
+  filter(is.na(as.numeric(word)))
+GOT_no_numeric
+```
+```{r}
+length(unique(GOT_no_numeric$word))
+
+GOT_top100 <- GOT_no_numeric %>% 
+  count(word) %>% 
+  arrange(-n) %>% 
+  head(100)
+GOT_top100
+```
+```{r}
+ggplot(data = GOT_top100, aes(label = word, size = n)) +
+  geom_text_wordcloud_area(aes(color = n), shape = "star") +
+  scale_size_area(max_size = 12) +
+  scale_color_gradientn(colors = c("darkgreen","blue","red")) +
+  theme_minimal()
+```
+```{r}
+get_sentiments(lexicon = "afinn")
+afinn_pos <- get_sentiments("afinn") %>% 
+  filter(value %in% c(3,4,5))
+afinn_pos
+```
+```{r}
+get_sentiments(lexicon = "bing")
+```
+```{r}
+get_sentiments(lexicon = "nrc")
+```
+```{r}
+GOT_afinn <- GOT_stop %>% 
+  inner_join(get_sentiments("afinn"))
+GOT_afinn
+```
+```{r}
+GOT_afinn_hist <- GOT_afinn %>% 
+  count(value)
+
+ggplot(data = GOT_afinn_hist, aes(x = value, y = n)) +
+  geom_col(aes(fill = value)) +
+  theme_bw()
+```
+```{r}
+GOT_summary <- GOT_afinn %>% 
+  summarize(
+    mean_score = mean(value),
+    median_score = median(value)
+  )
+GOT_summary
+```
+```{r}
+GOT_nrc <- GOT_stop %>% 
+  inner_join(get_sentiments("nrc"))
+GOT_nrc
+```
+
+```{r}
+GOT_exclude <- GOT_stop %>% 
+  anti_join(get_sentiments("nrc"))
+
+GOT_exclude_n <- GOT_exclude %>% 
+  count(word, sort = TRUE)
+
+head(GOT_exclude_n)
+```
+```{r}
+GOT_nrc_n <- GOT_nrc %>% 
+  count(sentiment, sort = TRUE)
+
+
+ggplot(data = GOT_nrc_n, aes(x = sentiment, y = n)) +
+  geom_col(aes(fill = sentiment))+
+  theme_bw()
+```
+```{r}
+GOT_nrc_n5 <- GOT_nrc %>% 
+  count(word,sentiment, sort = TRUE) %>% 
+  group_by(sentiment) %>% 
+  top_n(5) %>% 
+  ungroup()
+
+GOT_nrc_gg <- ggplot(data = GOT_nrc_n5, aes(x = reorder(word,n), y = n, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~sentiment, ncol = 2, scales = "free") +
+  coord_flip() +
+  theme_minimal() +
+  labs(x = "Word", y = "count")
+
+GOT_nrc_gg
+```
+```{r}
+lord <- get_sentiments(lexicon = "nrc") %>% 
+  filter(word == "lord")
+
+lord
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
