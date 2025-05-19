@@ -1,0 +1,201 @@
+---
+title: "Projekt"
+author: "Jakob T Rasmussen, Kresten Clausen & Smilla Larsen"
+date: "2025-04-28"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+library(tidyverse)
+library(dplyr)
+library(gganimate)
+```
+```{r}
+Kandidat <- read_csv("Data/Folketingsvalg - Kandidat.csv")
+head(Kandidat)
+```
+```{r}
+Kandidat_long <- Kandidat %>%
+  pivot_longer(
+    cols = -År, 
+    names_to = "Parti",
+    values_to = "Mandater")%>%
+  filter(!is.na(Mandater)) 
+```
+```{r}
+vline_years <- c(1973, 1977, 1984, 1994, 2001)
+```
+```{r}
+partifarver <- c(
+  "CD" = "#7D3F98",
+  "DF" = "#FFD700",
+  "DKP" = "#AE0030",
+  "DR" = "#B0B0B0",
+  "EL" = "#AE0030",
+  "FK" = "#A67C52",
+  "FP" = "#FF7F00",
+  "KF" = "#1A932E",
+  "KRF" = "#A67C52",
+  "RV" = "#954FAD",
+  "S" = "#E3000F",
+  "SF" = "#C32026",
+  "V" = "#00529F",
+  "VS" = "#AE0030"
+)
+ggplot(Kandidat_long, aes(x = År, y = Mandater, color = Parti)) +
+  geom_line(linewidth = 1) +
+  scale_color_manual(values = partifarver)+
+  geom_vline(xintercept = vline_years, color = "black", linetype = "dashed", size = 0.7) +
+  geom_point() +
+  theme_minimal() +
+   theme_minimal()
+
+```
+
+```{r}
+partifarver <- c(
+  "CD" = "#7D3F98",
+  "DF" = "#FFD700",
+  "DKP" = "#AE0030",
+  "DR" = "#B0B0B0",
+  "EL" = "#AE0030",
+  "FK" = "#A67C52",
+  "FP" = "#FF7F00",
+  "KF" = "#1A932E",
+  "KRF" = "#A67C52",
+  "RV" = "#954FAD",
+  "S" = "#E3000F",
+  "SF" = "#C32026",
+  "V" = "#00529F",
+  "VS" = "#AE0030"
+)
+p <- ggplot(Kandidat_long, aes(x = År, y = Mandater, color = Parti)) +
+  geom_line(linewidth = 1) +
+  scale_color_manual(values = partifarver) +
+  geom_point() +
+  geom_vline(xintercept = vline_years, color = "black", linetype = "dashed", size = 0.7) +
+  theme_minimal() +
+  labs(title = 'År: {frame_along}') +
+  transition_reveal(År)
+```
+```{r}
+animate(p, fps = 30, duration = 5)
+```
+
+```{r}
+data_1973 <- Kandidat_long %>% filter(År == 1973)
+partifarver <- c(
+  "S" = "#E3000F",  
+  "V" = "#00529F",            
+  "FP" = "#FF7F00", 
+  "KF" = "#1A932E",
+  "CD" = "#7D3F98",
+  "SF" = "#C32026",  
+  "RV" = "#954FAD",     
+  "KRF" = "#A67C52",
+  "DKP" = "#AE0030",
+  "DR" = "#B0B0B0"
+)
+ggplot(data_1973, aes(x = Parti, y = Mandater, fill = Parti)) +
+  geom_bar(stat = "identity", color = "black") +
+  scale_fill_manual(values = partifarver) +
+  labs(title = "Folketingsvalg 1973 - Mandatfordeling",
+       x = "Parti", y = "Antal mandater") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+
+data_1977 <- Kandidat_long %>% filter(År == 1977)
+partifarver <- c(
+  "S" = "#E3000F",  
+  "V" = "#00529F",            
+  "FP" = "#FF7F00", 
+  "KF" = "#1A932E",
+  "CD" = "#7D3F98",
+  "SF" = "#C32026",  
+  "RV" = "#954FAD",     
+  "KRF" = "#A67C52",
+  "DKP" = "#AE0030",
+  "DR" = "#B0B0B0"
+)
+ggplot(data_1977, aes(x = Parti, y = Mandater, fill = Parti)) +
+  geom_bar(stat = "identity", color = "black") +
+  scale_fill_manual(values = partifarver) +
+  labs(title = "Folketingsvalg 1977 - Mandatfordeling",
+       x = "Parti", y = "Antal mandater") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+```{r}
+data_1984 <- Kandidat_long %>% filter(År == 1984)
+
+partifarver <- c(
+  "S" = "#E3000F",  
+  "V" = "#00529F",            
+  "FP" = "#FF7F00", 
+  "KF" = "#1A932E",
+  "CD" = "#7D3F98",
+  "SF" = "#C32026",  
+  "RV" = "#954FAD",     
+  "KRF" = "#A67C52",
+  "DR" = "#B0B0B0",
+  "VS" = "#AE0030"
+)
+ggplot(data_1984, aes(x = Parti, y = Mandater, fill = Parti)) +
+  geom_bar(stat = "identity", color = "black") +
+  scale_fill_manual(values = partifarver) +
+  labs(title = "Folketingsvalg 1984 - Mandatfordeling",
+       x = "Parti", y = "Antal mandater") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+```{r}
+data_1994 <- Kandidat_long %>% filter(År == 1994)
+partifarver <- c(
+  "S" = "#E3000F",  
+  "V" = "#00529F",            
+  "FP" = "#FF7F00", 
+  "KF" = "#1A932E",
+  "CD" = "#7D3F98",
+  "SF" = "#C32026",  
+  "RV" = "#954FAD",     
+  "KRF" = "#A67C52",
+  "DR" = "#B0B0B0",
+  "EL" = "#AE0030"
+)
+ggplot(data_1994, aes(x = Parti, y = Mandater, fill = Parti)) +
+  geom_bar(stat = "identity", color = "black") +
+  scale_fill_manual(values = partifarver) +
+  labs(title = "Folketingsvalg 1994 - Mandatfordeling",
+       x = "Parti", y = "Antal mandater") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+```{r}
+data_2001 <- Kandidat_long %>% filter(År == 2001)
+partifarver <- c(
+  "S" = "#E3000F",  
+  "V" = "#00529F",            
+  "FP" = "#FF7F00", 
+  "KF" = "#1A932E",
+  "CD" = "#7D3F98",
+  "SF" = "#C32026",  
+  "RV" = "#954FAD",     
+  "KRF" = "#A67C52",
+  "DF" = "#FFD700",
+  "EL" = "#AE0030"
+)
+ggplot(data_2001, aes(x = Parti, y = Mandater, fill = Parti)) +
+  geom_bar(stat = "identity", color = "black") +
+  scale_fill_manual(values = partifarver) +
+  labs(title = "Folketingsvalg 2001 - Mandatfordeling",
+       x = "Parti", y = "Antal mandater") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
